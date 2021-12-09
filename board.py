@@ -6,6 +6,7 @@ class Board:
         self.board = board
         self.booleanBoard = booleanBoard
         self.generationCounter = 0
+        self.population = 0
 
     def updateCells(self):
         for i in range(0,len(self.booleanBoard)): # Número de filas #
@@ -13,12 +14,17 @@ class Board:
                 row = i if(i - 1 < 0) else (i-1)
                 col = j if(j - 1 < 0) else (j-1)
                 cell = self.board[i][j]
+                prevState = cell.state ## Estado previo ##
                 if(cell.state):
                     self.booleanBoard[i][j] = self._ifCellIsAlive(i, j, row, col)
                 else:
                     self.booleanBoard[i][j] = self._ifCellIsDead(i, j, row, col)
-                cell.icon = 'A' if(self.booleanBoard[i][j]) else 'D'
-
+                if(not(prevState) and self.booleanBoard[i][j]):
+                    self.population += 1
+                
+                if(prevState and not(self.booleanBoard[i][j])):
+                    self.population -= 1
+                
         for i in range(0,len(self.booleanBoard)): # Número de filas #
             for j in range(0, len(self.booleanBoard[i])): # Número de columnas #
                 self.board[i][j].state = self.booleanBoard[i][j]
@@ -36,7 +42,7 @@ class Board:
                 if(i != x or j != y):
                     if(self.board[i][j].state):
                         neighbors += 1
-        return False if(neighbors > 3 or neighbors < 2) else True# Celula sobrevive
+        return False if(neighbors > 3 or neighbors < 2) else True # Celula sobrevive
 
     # Recorrer vecinos, si tiene tres nace la célula
     def _ifCellIsDead(self, x, y, row, col):
@@ -68,16 +74,7 @@ class Board:
 
     def isAnyOneAlive(self):
         for i in range(0,len(self.board)): # Número de filas #
-            for j in range(0, len(self.board[i])): # Número de columnas #
-                if(self.board[i][j].state):
-                    return True
+            isAlive = list(filter(lambda cell: cell.state, self.board[i]))
+            if(len(isAlive) > 0):
+                return True
         return False
-
-
-    def getPopulations(self):
-        population = 0
-        for i in range(0,len(self.board)): # Número de filas #
-            for j in range(0, len(self.board[i])): # Número de columnas #
-                if(self.board[i][j].state):
-                    population += 1
-        return population
