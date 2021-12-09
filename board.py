@@ -19,6 +19,7 @@ class Board:
                     self.booleanBoard[i][j] = self._ifCellIsAlive(i, j, row, col)
                 else:
                     self.booleanBoard[i][j] = self._ifCellIsDead(i, j, row, col)
+                    
                 if(not(prevState) and self.booleanBoard[i][j]):
                     self.population += 1
                 
