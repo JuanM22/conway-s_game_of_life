@@ -1,53 +1,72 @@
 import pygame
 import sys
+
+from board import Board
+from cell import Cell
+
 black = (0, 0, 0)
 white = (255, 255, 255)
 
 red = (255, 0, 0)
-WIDTH = 6
-HEIGHT = 6
+WIDTH = 10
+HEIGHT = 10
 MARGIN = 1
-grid = []
+board = []
+booleanBoard = []
 
 pygame.init()
 resolution = pygame.display.Info()
 size = width, height = (resolution.current_w * 65) / 100, resolution.current_h
 scr = pygame.display.set_mode((0,0), pygame.FULLSCREEN)
 
-ROWS = int(height / 6)
-COLS = int(width / 6)
-
-print(width)
+ROWS = int(height / 10)
+COLS = int(width / 10)
 
 for row in range(ROWS):
-    grid.append([])
+    board.append([])
     for column in range(COLS):
-        grid[row].append(0) 
+        board[row].append(Cell(False,'D'))
+
+for row in range(ROWS):
+    booleanBoard.append([])
+    for column in range(COLS):
+        booleanBoard[row].append(False)
 
 pygame.display.set_caption("Conway's Life Game")
-done = False
 clock = pygame.time.Clock()
 
-while not done:
+boardInstance = Board(board, booleanBoard)
+isPlaying = False
+isRunning = True
+clockTick = 50
+
+while isRunning:
+
     for event in pygame.event.get(): 
         if event.type == pygame.KEYDOWN:
             if(event.key == pygame.K_ESCAPE):
                 sys.exit()
+            if(event.key == pygame.K_SPACE):
+                isPlaying = True
         elif event.type == pygame.MOUSEBUTTONDOWN:
-            pos = pygame.mouse.get_pos()
-            col = pos[0] // (WIDTH + MARGIN)
-            row = pos[1] // (HEIGHT + MARGIN)
-            if((row >=0 and row < ROWS) and (col >= 0 and col < COLS)):
-                if(grid[row][col] == 1):
-                    grid[row][col] = 0
-                else:
-                    grid[row][col] = 1
-                print("Click ", pos, "Grid coordinates: ", row, col)
+            if(not(isPlaying)):
+                pos = pygame.mouse.get_pos()
+                col = pos[0] // (WIDTH + MARGIN)
+                row = pos[1] // (HEIGHT + MARGIN)
+                if((row >=0 and row < ROWS) and (col >= 0 and col < COLS)):
+                    boardInstance.board[row][col] = Cell(True, 'A') if(not(boardInstance.board[row][col].state)) else Cell(False, 'D')
+                    boardInstance.booleanBoard[row][col] = True if(boardInstance.board[row][col] == None) else False
+
     scr.fill(black)
+
+    if(isPlaying):
+        boardInstance.updateCells()
+        isRunning = boardInstance.isAnyOneAlive()
+
     for row in range(ROWS):
         for column in range(COLS):
             color = white
-            if grid[row][column] == 1:
+            if(boardInstance.board[row][column].state):
                 color = red
             pygame.draw.rect(scr,
                              color,
@@ -55,6 +74,6 @@ while not done:
                               (MARGIN + HEIGHT) * row + MARGIN,
                               WIDTH,
                               HEIGHT])
-    clock.tick(50)
+    clock.tick(clockTick)
     pygame.display.flip()
 pygame.quit()

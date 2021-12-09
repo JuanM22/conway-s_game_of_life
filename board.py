@@ -2,13 +2,10 @@ from cell import Cell
 
 class Board:
 
-    def __init__(self, n, board, booleanBoard):
+    def __init__(self, board, booleanBoard):
         self.board = board
         self.booleanBoard = booleanBoard
-        # self._createBoard(n)
-
-    def _createBoard(self, n):
-        self.board += [Cell()] * n
+        self.generationCounter = 0
 
     def updateCells(self):
         for i in range(0,len(self.booleanBoard)): # Número de filas #
@@ -25,6 +22,8 @@ class Board:
         for i in range(0,len(self.booleanBoard)): # Número de filas #
             for j in range(0, len(self.booleanBoard[i])): # Número de columnas #
                 self.board[i][j].state = self.booleanBoard[i][j]
+        
+        self.generationCounter += 1
         
 
     # Recorrer vecinos, si tiene más de tres muere la célula
@@ -67,10 +66,18 @@ class Board:
             colLength -=1
         return colLength
 
-
     def isAnyOneAlive(self):
         for i in range(0,len(self.board)): # Número de filas #
             for j in range(0, len(self.board[i])): # Número de columnas #
                 if(self.board[i][j].state):
                     return True
         return False
+
+
+    def getPopulations(self):
+        population = 0
+        for i in range(0,len(self.board)): # Número de filas #
+            for j in range(0, len(self.board[i])): # Número de columnas #
+                if(self.board[i][j].state):
+                    population += 1
+        return population
